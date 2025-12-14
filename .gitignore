@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Temporary files
+temp.txt
+*.tmp
+*.log
+
+# Detection results
+runs/
+*.jpg
+*.jpeg
+*.png
+vandalisum.jpg
+accident.jpg
+fighting.jpg
+fire.jpg
+large_crowed.jpg
+pushing.jpg
+weapon.jpg
+
+# Model weights (too large for GitHub - use Git LFS if needed)
+*.pt
+
+# Training graphs
+*_graphs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+

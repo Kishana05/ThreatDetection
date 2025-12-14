@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Detection Dashboard - Threat Detection System</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #020617;
+      --cyan: #06b6d4;
+      --purple: #8b5cf6;
+      --pink: #ec4899;
+      --blue: #3b82f6;
+      --green: #10b981;
+      --orange: #f59e0b;
+      --red: #ef4444;
+      --slate: #1e293b;
+      --slate-light: #334155;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Subtle Background Gradient Mesh */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        radial-gradient(circle at 20% 30%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.06) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+      animation: meshMove 20s ease infinite;
+    }
+    
+    @keyframes meshMove {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    
+    /* Subtle Grid Pattern */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(148, 163, 184, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    /* Elegant Navbar */
+    .navbar-custom {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      padding: 20px 0;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+    
+    .navbar-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .navbar-brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.5px;
+    }
+    
+    .brand-icon {
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .logout-btn {
+      padding: 10px 20px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 10px;
+      color: var(--text-primary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: var(--text-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(239, 68, 68, 0.2);
+    }
+    
+    /* Main Container */
+    .main-content-wrapper {
+      position: relative;
+      z-index: 10;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 3rem 2rem;
+      min-height: calc(100vh - 80px);
+    }
+    
+    /* Header Section */
+    .header-section {
+      position: relative;
+      z-index: 10;
+      margin-top: 3rem;
+      margin-bottom: 3rem;
+      padding: 0 1rem;
+      text-align: center;
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .page-title {
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--cyan), var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1.5px;
+      line-height: 1.2;
+    }
+    
+    .page-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+    
+    /* Cards Grid - Fixed Layout */
+    .cards-grid {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-bottom: 2rem;
+      width: 100%;
+    }
+    
+    /* Detection Card - Clean & Elegant */
+    .detection-card {
+      background: rgba(30, 41, 59, 0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 2rem 1.5rem;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: visible;
+      animation: cardFadeIn 0.5s ease-out backwards;
+      display: flex;
+      flex-direction: column;
+      min-height: 320px;
+      width: 100%;
+    }
+    
+    @keyframes cardFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .detection-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, currentColor, transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .detection-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(148, 163, 184, 0.2);
+      box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(148, 163, 184, 0.1);
+    }
+    
+    .detection-card:hover::before {
+      opacity: 1;
+    }
+    
+    /* Card Colors - Bright & Vibrant */
+    .vandalism { color: #d946ef; }
+    .crowd-push { color: #06b6d4; }
+    .large-crowd { color: #10b981; }
+    .shoplifting { color: #f97316; }
+    .fight { color: #ef4444; }
+    .fire { color: #fb923c; }
+    .accident { color: #6366f1; }
+    .weapon { color: #ec4899; }
+    
+    /* Staggered Animation */
+    .detection-card:nth-child(1) { animation-delay: 0.05s; }
+    .detection-card:nth-child(2) { animation-delay: 0.1s; }
+    .detection-card:nth-child(3) { animation-delay: 0.15s; }
+    .detection-card:nth-child(4) { animation-delay: 0.2s; }
+    .detection-card:nth-child(5) { animation-delay: 0.25s; }
+    .detection-card:nth-child(6) { animation-delay: 0.3s; }
+    .detection-card:nth-child(7) { animation-delay: 0.35s; }
+    .detection-card:nth-child(8) { animation-delay: 0.4s; }
+    
+    /* Icon Section - Much More Visible */
+    .card-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, currentColor, rgba(255, 255, 255, 0.1));
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .detection-card:hover .card-icon-wrapper {
+      transform: scale(1.08);
+      box-shadow: 0 12px 32px currentColor;
+    }
+    
+    .card-icon {
+      font-size: 2.5rem;
+      color: currentColor;
+      filter: drop-shadow(0 0 12px currentColor) brightness(1.3);
+      position: relative;
+      z-index: 1;
+    }
+    
+    /* Glow effect for icons */
+    .card-icon-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 22px;
+      background: currentColor;
+      opacity: 0.2;
+      filter: blur(12px);
+      z-index: 0;
+    }
+    
+    /* Card Title */
+    .card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.3px;
+      text-align: center;
+    }
+    
+    /* File Input */
+    .file-input-wrapper {
+      margin-bottom: 1rem;
+      position: relative;
+      flex: 1;
+    }
+    
+    .file-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      font-weight: 400;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: block;
+    }
+    
+    .file-input::file-selector-button {
+      padding: 8px 16px;
+      margin-right: 12px;
+      background: rgba(148, 163, 184, 0.15);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .file-input::file-selector-button:hover {
+      background: rgba(148, 163, 184, 0.25);
+      border-color: rgba(148, 163, 184, 0.4);
+    }
+    
+    .file-input:hover {
+      background: rgba(15, 23, 42, 0.7);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+    
+    .file-input:focus {
+      outline: none;
+      border-color: currentColor;
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.1);
+    }
+    
+    /* Detect Button */
+    .detect-btn {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      background: linear-gradient(135deg, currentColor, rgba(255, 255, 255, 0.1));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      letter-spacing: 0.3px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 1rem;
+    }
+    
+    .detect-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .detect-btn:hover {
+      opacity: 1;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+    }
+    
+    .detect-btn:hover::before {
+      opacity: 1;
+    }
+    
+    .detect-btn:active {
+      transform: translateY(0) scale(0.98);
+    }
+    
+    .btn-icon {
+      font-size: 1rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .detect-btn:hover .btn-icon {
+      transform: translateX(2px);
+    }
+    
+    /* Loading State */
+    .detect-btn.loading {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+    
+    .detect-btn.loading .btn-icon {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+      }
+      
+      .main-content-wrapper {
+        padding: 2.5rem 1.5rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .navbar-content {
+        padding: 0 20px;
+      }
+      
+      .navbar-brand {
+        font-size: 1.1rem;
+      }
+      
+      .brand-icon {
+        font-size: 1.3rem;
+      }
+      
+      .logout-btn {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+      }
+      
+      .main-content-wrapper {
+        padding: 2rem 1rem;
+      }
+      
+      .header-section {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .page-title {
+        font-size: 2rem;
+        letter-spacing: -1px;
+      }
+      
+      .page-subtitle {
+        font-size: 1rem;
+      }
+      
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      
+      .detection-card {
+        padding: 1.75rem 1.5rem;
+        min-height: 300px;
+      }
+      
+      .card-title {
+        font-size: 1.25rem;
+      }
+      
+      .card-icon-wrapper {
+        width: 70px;
+        height: 70px;
+      }
+      
+      .card-icon {
+        font-size: 2.2rem;
+      }
+    }
+    
+    @media (max-width: 375px) {
+      .main-content-wrapper {
+        padding: 1.5rem 0.75rem;
+      }
+      
+      .detection-card {
+        padding: 1.5rem 1.25rem;
+      }
+    }
+    
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+    
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+      border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, var(--blue), var(--pink));
+    }
+    
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* File Selected State */
+    .file-input.selected {
+      border-color: currentColor;
+      background: rgba(15, 23, 42, 0.7);
+    }
+    
+    /* Success Indicator */
+    .success-indicator {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--green);
+      font-size: 1.1rem;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .file-input-wrapper.has-file .success-indicator {
+      opacity: 1;
+      animation: scaleIn 0.3s ease;
+    }
+    
+    @keyframes scaleIn {
+      from {
+        transform: translateY(-50%) scale(0);
+      }
+      to {
+        transform: translateY(-50%) scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Elegant Navbar -->
+  <nav class="navbar-custom">
+    <div class="navbar-content">
+      <div class="navbar-brand">
+        <i class="fas fa-shield-halved brand-icon"></i>
+        <span>Threat Detection System</span>
+      </div>
+      <a href="/" class="logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-content-wrapper">
+    <!-- Header Section -->
+    <div class="header-section">
+      <h1 class="page-title">Detection Dashboard</h1>
+      <p class="page-subtitle">AI-powered threat detection and analysis</p>
+    </div>
+
+    <!-- Detection Cards Grid -->
+    <div class="cards-grid">
+    <!-- Vandalism Detection -->
+    <form method="post" action="{{ url_for('Live1')}}" class="detection-card vandalism">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-spray-can card-icon"></i>
+      </div>
+      <h2 class="card-title">Vandalism Detection</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename1"
+          name="filename1"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Crowd Pushing -->
+    <form method="post" action="{{ url_for('Live2')}}" class="detection-card crowd-push">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-people-arrows card-icon"></i>
+      </div>
+      <h2 class="card-title">Crowd Pushing</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename2"
+          name="filename2"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Large Crowd -->
+    <form method="post" action="{{ url_for('Live3')}}" class="detection-card large-crowd">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-users card-icon"></i>
+      </div>
+      <h2 class="card-title">Large Crowd</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename3"
+          name="filename3"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Shoplifting -->
+    <form method="post" action="{{ url_for('Live4')}}" class="detection-card shoplifting">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-shopping-bag card-icon"></i>
+      </div>
+      <h2 class="card-title">Shoplifting</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename4"
+          name="filename4"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Fight Detection -->
+    <form method="post" action="{{ url_for('Live5')}}" class="detection-card fight">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-fist-raised card-icon"></i>
+      </div>
+      <h2 class="card-title">Fight Detection</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename5"
+          name="filename5"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Fire Detection -->
+    <form method="post" action="{{ url_for('Live6')}}" class="detection-card fire">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-fire card-icon"></i>
+      </div>
+      <h2 class="card-title">Fire Detection</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename6"
+          name="filename6"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Accident Detection -->
+    <form method="post" action="{{ url_for('Live7')}}" class="detection-card accident">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-car-crash card-icon"></i>
+      </div>
+      <h2 class="card-title">Accident Detection</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename7"
+          name="filename7"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+
+    <!-- Weapon Detection -->
+    <form method="post" action="{{ url_for('Live8')}}" class="detection-card weapon">
+      <div class="card-icon-wrapper">
+        <i class="fas fa-crosshairs card-icon"></i>
+      </div>
+      <h2 class="card-title">Weapon Detection</h2>
+      <div class="file-input-wrapper">
+        <input
+          type="file"
+          class="file-input"
+          id="filename8"
+          name="filename8"
+          accept="video/*,image/*"
+        />
+        <i class="fas fa-check-circle success-indicator"></i>
+      </div>
+      <button type="submit" class="detect-btn">
+        <i class="fas fa-search btn-icon"></i>
+        <span>Detect</span>
+      </button>
+    </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  
+  <script>
+    // File Input Enhancement
+    document.querySelectorAll('.file-input').forEach(input => {
+      input.addEventListener('change', function() {
+        const wrapper = this.parentElement;
+        
+        if (this.files && this.files[0]) {
+          this.classList.add('selected');
+          wrapper.classList.add('has-file');
+          
+          // Smooth animation
+          wrapper.style.transform = 'scale(1.02)';
+          setTimeout(() => {
+            wrapper.style.transform = 'scale(1)';
+          }, 200);
+        } else {
+          this.classList.remove('selected');
+          wrapper.classList.remove('has-file');
+        }
+      });
+      
+      // Drag and drop visual feedback
+      input.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = 'currentColor';
+        this.style.background = 'rgba(15, 23, 42, 0.8)';
+      });
+      
+      input.addEventListener('dragleave', function() {
+        this.style.borderColor = '';
+        this.style.background = '';
+      });
+      
+      input.addEventListener('drop', function() {
+        this.style.borderColor = '';
+        this.style.background = '';
+      });
+    });
+    
+    // Button Loading State
+    document.querySelectorAll('form').forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const button = this.querySelector('.detect-btn');
+        const icon = button.querySelector('.btn-icon');
+        
+        button.classList.add('loading');
+        icon.className = 'fas fa-spinner-third btn-icon';
+        button.querySelector('span').textContent = 'Processing...';
+      });
+    });
+    
+    // Smooth card hover effects
+    document.querySelectorAll('.detection-card').forEach(card => {
+      card.addEventListener('mouseenter', function() {
+        this.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+      });
+    });
+    
+    // Navbar scroll behavior
+    let lastScroll = 0;
+    const navbar = document.querySelector('.navbar-custom');
+    
+    window.addEventListener('scroll', () => {
+      const currentScroll = window.pageYOffset;
+      
+      if (currentScroll > lastScroll && currentScroll > 80) {
+        navbar.style.transform = 'translateY(-100%)';
+      } else {
+        navbar.style.transform = 'translateY(0)';
+      }
+      
+      lastScroll = currentScroll;
+    });
+  </script>
+</body>
+</html>
