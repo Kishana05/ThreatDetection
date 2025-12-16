@@ -169,10 +169,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is open source and available under the MIT License.
 
-## 👤 Author
 
-**Kishana05**
-- GitHub: [@Kishana05](https://github.com/Kishana05)
 
 ## 🙏 Acknowledgments
 
